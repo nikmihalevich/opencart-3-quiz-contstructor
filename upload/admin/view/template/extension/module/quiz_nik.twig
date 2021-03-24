@@ -1,4 +1,29 @@
-{{ header }}{{ column_left }}
+{{ header }}
+<style>
+  .block-row {
+    margin-top: 50px;
+  }
+  .question-answer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 15px;
+    border: 1px solid #dadada;
+    margin-bottom: 10px;
+  }
+  .question-answer-row-add {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .question-answer-row-add-button {
+    width: fit-content;
+    padding: 5px 20px;
+    border: 1px solid lightgray;
+    border-radius: 4px;
+    box-shadow: 0px 0px 8px -3px rgba(34, 60, 80, 0.2) inset;
+  }
+</style>
+{{ column_left }}
 <div id="content">
   <div class="page-header">
     <div class="container-fluid">
@@ -28,8 +53,8 @@
           <div class="form-group">
             <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
             <div class="col-sm-10">
-              <select name="module_account_status" id="input-status" class="form-control">
-                {% if module_account_status %}
+              <select name="module_quiz_nik_status" id="input-status" class="form-control">
+                {% if module_quiz_nik_status %}
                 <option value="1" selected="selected">{{ text_enabled }}</option>
                 <option value="0">{{ text_disabled }}</option>
                 {% else %}
@@ -50,29 +75,69 @@
                 <div class="form-group">
                   <label class="col-sm-2 control-label" for="input-title{{ language.language_id }}">{{ entry_title }}</label>
                   <div class="col-sm-10">
-                    <input type="text" name="quiz_description[{{ language.language_id }}][title]" value="{{ quiz_description[language.language_id] ? quiz_description[language.language_id].title }}" placeholder="{{ entry_title }}" id="input-title{{ language.language_id }}" class="form-control"/>
+                    <input type="text" name="module_quiz_nik_description[{{ language.language_id }}][title]" value="{{ module_quiz_nik_description[language.language_id] ? module_quiz_nik_description[language.language_id].title }}" placeholder="{{ entry_title }}" id="input-title{{ language.language_id }}" class="form-control"/>
                   </div>
                 </div>
                 <div class="form-group">
                   <label class="col-sm-2 control-label" for="input-text{{ language.language_id }}">{{ entry_text }}</label>
                   <div class="col-sm-10">
-                    <textarea name="quiz_description[{{ language.language_id }}][text]" placeholder="{{ entry_text }}" id="input-text{{ language.language_id }}" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ quiz_description[language.language_id] ? product_description[language.language_id].text }}</textarea>
+                    <textarea name="module_quiz_nik_description[{{ language.language_id }}][text]" placeholder="{{ entry_text }}" id="input-text{{ language.language_id }}" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ module_quiz_nik_description[language.language_id] ? module_quiz_nik_description[language.language_id].text }}</textarea>
                   </div>
                 </div>
                 <div class="form-group">
                   <label class="col-sm-2 control-label" for="input-link{{ language.language_id }}">{{ entry_quiz_page_link }}</label>
                   <div class="col-sm-10">
-                    <input type="text" name="quiz_description[{{ language.language_id }}][link]" value="{{ quiz_description[language.language_id] ? quiz_description[language.language_id].link }}" placeholder="{{ entry_quiz_page_link }}" id="input-link{{ language.language_id }}" class="form-control"/>
+                    <input type="text" name="module_quiz_nik_description[{{ language.language_id }}][link]" value="{{ module_quiz_nik_description[language.language_id] ? module_quiz_nik_description[language.language_id].link }}" placeholder="{{ entry_quiz_page_link }}" id="input-link{{ language.language_id }}" class="form-control"/>
                   </div>
                 </div>
                 <div class="form-group">
                   <label class="col-sm-2 control-label" for="input-class{{ language.language_id }}">{{ entry_module_class }}</label>
                   <div class="col-sm-10">
-                    <input type="text" name="quiz_description[{{ language.language_id }}][class]" value="{{ quiz_description[language.language_id] ? quiz_description[language.language_id].class }}" placeholder="{{ entry_module_class }}" id="input-class{{ language.language_id }}" class="form-control"/>
+                    <input type="text" name="module_quiz_nik_description[{{ language.language_id }}][class]" value="{{ module_quiz_nik_description[language.language_id] ? module_quiz_nik_description[language.language_id].class }}" placeholder="{{ entry_module_class }}" id="input-class{{ language.language_id }}" class="form-control"/>
                   </div>
                 </div>
+
+
+                <div class="block-row">
+                  <h4>{{ text_question_and_answer }}</h4>
+                  {% set question_counter = 1 %}
+                  {% for question in questions if question.language_id == language.language_id %}
+                    <div class="question-answer-row">
+                      <div class="question-answer-row-title">Вопрос №{{ question_counter }}</div>
+                      <div class="question-answer-row-buttons">
+                        <a href="{{ edit_question_button }}{{ question.question_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-info"><i class="fa fa-pencil"></i></a>
+                        <a href="{{ delete_question_button }}{{ question.question_id }}" onclick="confirm('{{ confirm_delete_question }}') ? window.href = '{{ delete_question_button }}{{ question.question_id }}' : event.preventDefault();" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger"><i class="fa fa-trash-o"></i></a>
+                      </div>
+                    </div>
+                    {% set question_counter = question_counter + 1 %}
+                  {% endfor %}
+                  <div class="question-answer-row-add">
+                    <div class="question-answer-row-add-button">
+                      {{ add_question_answer }}
+                      <a href="{{ add_question_button }}&language_id={{ language.language_id }}" data-toggle="tooltip" title="{{ button_add }}" class="btn btn-success" style="margin-left: 10px;"><i class="fa fa-plus"></i></a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="block-row">
+                  <h4>{{ text_result }}</h4>
+                  <div class="question-answer-row">
+                    <div class="question-answer-row-title">Результат №1 - Ты экономичный</div>
+                    <div class="question-answer-row-buttons">
+                      <a href="#" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-info"><i class="fa fa-pencil"></i></a>
+                      <a href="#" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger"><i class="fa fa-trash-o"></i></a>
+                    </div>
+                  </div>
+                  <div class="question-answer-row-add">
+                    <div class="question-answer-row-add-button">
+                      {{ add_question_answer }}
+                      <a href="#" data-toggle="tooltip" title="{{ button_add }}" class="btn btn-success" style="margin-left: 10px;"><i class="fa fa-plus"></i></a>
+                    </div>
+                  </div>
+                </div>
+
+
               </div>
-              .block
             {% endfor %}
           </div>
         </form>

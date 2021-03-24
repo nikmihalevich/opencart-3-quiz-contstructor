@@ -1,0 +1,126 @@
+{{ header }}
+<style>
+  .question-answer-row-add {
+    margin-top: 50px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .question-answer-row-add-button {
+    width: fit-content;
+    padding: 5px 20px;
+    border: 1px solid lightgray;
+    border-radius: 4px;
+    box-shadow: 0px 0px 8px -3px rgba(34, 60, 80, 0.2) inset;
+  }
+  .answer-row {
+    margin-top: 10px;
+    display: flex;
+    width: 100%;
+  }
+</style>
+{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-module" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-module" class="form-horizontal">
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-description">{{ entry_text_on_page }}</label>
+            <div class="col-sm-10">
+              <textarea name="question_text_on_page" placeholder="{{ entry_text_on_page }}" id="input-description" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ question_text_on_page }}</textarea>
+            </div>
+            <label class="col-sm-2 control-label" for="input-description">{{ entry_question_text }}</label>
+            <div class="col-sm-10">
+              <textarea name="question_text" placeholder="{{ entry_question_text }}" id="input-description" data-toggle="summernote" data-lang="{{ summernote }}" class="form-control">{{ question_text }}</textarea>
+            </div>
+            <div class="answers-row">
+              {% if answers %}
+                {% for answer in answers %}
+                  <div class="answer-row">
+                    <label class="col-sm-2 control-label" for="input-question-answers1">{{ entry_answer_text }}1</label>
+                    <div class="col-sm-4">
+                      <input type="text" name="question_answers[]" value="{{ answer.answer }}" placeholder="{{ entry_answer_text }}1" id="input-question-answers1" class="form-control"/>
+                    </div>
+                    <label class="col-sm-2 control-label" for="input-question-answers-points1">{{ entry_answer_points }}</label>
+                    <div class="col-sm-4">
+                      <input type="text" name="question_answers_points[]" value="{{ answer.points }}" placeholder="{{ entry_answer_points }}" id="input-question-answers-points1" class="form-control"/>
+                    </div>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <div class="answer-row">
+                  <label class="col-sm-2 control-label" for="input-question-answers1">{{ entry_answer_text }}1</label>
+                  <div class="col-sm-4">
+                    <input type="text" name="question_answers[]" value="" placeholder="{{ entry_answer_text }}1" id="input-question-answers1" class="form-control"/>
+                  </div>
+                  <label class="col-sm-2 control-label" for="input-question-answers-points1">{{ entry_answer_points }}</label>
+                  <div class="col-sm-4">
+                    <input type="text" name="question_answers_points[]" value="" placeholder="{{ entry_answer_points }}" id="input-question-answers-points1" class="form-control"/>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+            <div class="col-sm-12">
+              <div class="question-answer-row-add">
+                <div class="question-answer-row-add-button">
+                  {{ add_answer }}
+                  <button type="button" data-toggle="tooltip" title="{{ button_add }}" class="btn btn-success add-answer" style="margin-left: 10px;"><i class="fa fa-plus"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+<script type="text/javascript" src="view/javascript/summernote/summernote.js"></script>
+<link href="view/javascript/summernote/summernote.css" rel="stylesheet"/>
+<script type="text/javascript" src="view/javascript/summernote/summernote-image-attributes.js"></script>
+<script type="text/javascript" src="view/javascript/summernote/opencart.js"></script>
+<script type="text/javascript">
+    let answerCounter = 1;
+    $('.add-answer').on('click', function () {
+        let html = '';
+
+        ++answerCounter;
+
+        html += '<div class="answer-row">\n' +
+                  '<label class="col-sm-2 control-label" for="input-question-answers' + answerCounter + '">{{ entry_answer_text }}' + answerCounter + '</label>\n' +
+                  '<div class="col-sm-4">\n' +
+                    '<input type="text" name="question_answers[]" value="" placeholder="{{ entry_answer_text }}' + answerCounter + '" id="input-question-answers' + answerCounter + '" class="form-control"/>\n' +
+                  '</div>\n' +
+                  '<label class="col-sm-2 control-label" for="input-question-answers-points' + answerCounter + '">{{ entry_answer_points }}</label>\n' +
+                  '<div class="col-sm-4">\n' +
+                    '<input type="text" name="question_answers_points[]" value="" placeholder="{{ entry_answer_points }}" id="input-question-answers-points' + answerCounter + '" class="form-control"/>\n' +
+                  '</div>\n' +
+                '</div>'
+
+        $('.answers-row').append(html)
+    })
+
+    $('#language a:first').tab('show');
+    $('#option a:first').tab('show');
+</script>
+</div>
+{{ footer }}
