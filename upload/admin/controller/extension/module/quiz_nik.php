@@ -48,6 +48,10 @@ class ControllerExtensionModuleQuizNik extends Controller {
 		$data['edit_question_button'] = $this->url->link('extension/module/quiz_nik/getQuestionForm', 'user_token=' . $this->session->data['user_token'] . '&question_id=', true);
 		$data['delete_question_button'] = $this->url->link('extension/module/quiz_nik/deleteQuestion', 'user_token=' . $this->session->data['user_token'] . '&question_id=', true);
 
+		$data['add_result_button'] = $this->url->link('extension/module/quiz_nik/getResultForm', 'user_token=' . $this->session->data['user_token'], true);
+		$data['edit_result_button'] = $this->url->link('extension/module/quiz_nik/getResultForm', 'user_token=' . $this->session->data['user_token'] . '&result_id=', true);
+		$data['delete_result_button'] = $this->url->link('extension/module/quiz_nik/deleteResult', 'user_token=' . $this->session->data['user_token'] . '&result_id=', true);
+
         $this->load->model('localisation/language');
 
         $data['languages'] = $this->model_localisation_language->getLanguages();
@@ -67,6 +71,12 @@ class ControllerExtensionModuleQuizNik extends Controller {
         $this->load->model('extension/module/quiz_nik');
 
 		$data['questions'] = $this->model_extension_module_quiz_nik->getQuestions();
+
+		$data['results'] = $this->model_extension_module_quiz_nik->getResults();
+
+		foreach ($data['results'] as $k => $result) {
+            $data['results'][$k]['result_text_result'] = strip_tags(html_entity_decode($result['result_text_result']));
+        }
 
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
@@ -139,7 +149,7 @@ class ControllerExtensionModuleQuizNik extends Controller {
             $data['action'] = $this->url->link('extension/module/quiz_nik/getQuestionForm', 'user_token=' . $this->session->data['user_token'] . '&language_id=' . $question_info['language_id'] . '&question_id=' . $this->request->get['question_id'], true);
         }
 
-        $data['cancel'] = $this->url->link('extension/module/quiz_nik', 'user_token=' . $this->session->data['user_token'] . '&type=module', true);
+        $data['cancel'] = $this->url->link('extension/module/quiz_nik', 'user_token=' . $this->session->data['user_token'], true);
 
         if (isset($this->request->post['question_text_on_page'])) {
             $data['question_text_on_page'] = $this->request->post['question_text_on_page'];
@@ -169,7 +179,7 @@ class ControllerExtensionModuleQuizNik extends Controller {
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
 
-        $this->response->setOutput($this->load->view('extension/module/quiz_add_question_nik', $data));
+        $this->response->setOutput($this->load->view('extension/module/quiz_question_form_nik', $data));
     }
 
     public function deleteQuestion() {
@@ -191,21 +201,11 @@ class ControllerExtensionModuleQuizNik extends Controller {
         $this->load->model('extension/module/quiz_nik');
 
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
-            $this->request->post['answers'] = array();
             $this->request->post['language_id'] = $this->request->get['language_id'];
-            foreach ($this->request->post['question_answers'] as $k => $answer) {
-                if (!empty($answer)) {
-                    $this->request->post['answers'][] = array(
-                        'answer' => $answer,
-                        'points' => $this->request->post['question_answers_points'][$k] ? $this->request->post['question_answers_points'][$k] : 0
-                    );
-                }
-            }
-
-            if (!isset($this->request->get['question_id'])) {
-                $this->model_extension_module_quiz_nik->addQuestion($this->request->post);
+            if (!isset($this->request->get['result_id'])) {
+                $this->model_extension_module_quiz_nik->addResult($this->request->post);
             } else {
-                $this->model_extension_module_quiz_nik->editQuestion($this->request->get['question_id'], $this->request->post);
+                $this->model_extension_module_quiz_nik->editResult($this->request->get['result_id'], $this->request->post);
             }
 
             $this->session->data['success'] = $this->language->get('text_success');
@@ -236,47 +236,65 @@ class ControllerExtensionModuleQuizNik extends Controller {
             'href' => $this->url->link('extension/module/quiz_nik', 'user_token=' . $this->session->data['user_token'], true)
         );
 
-        if (isset($this->request->get['question_id']) && ($this->request->server['REQUEST_METHOD'] != 'POST')) {
-            $question_info = $this->model_extension_module_quiz_nik->getQuestion($this->request->get['question_id']);
+        if (isset($this->request->get['result_id']) && ($this->request->server['REQUEST_METHOD'] != 'POST')) {
+            $result_info = $this->model_extension_module_quiz_nik->getResult($this->request->get['result_id']);
         }
 
-        if (!isset($this->request->get['question_id'])) {
-            $data['action'] = $this->url->link('extension/module/quiz_nik/getAddQuestionForm', 'user_token=' . $this->session->data['user_token'] . '&language_id=' . $this->request->get['language_id'], true);
+        if (!isset($this->request->get['result_id'])) {
+            $data['action'] = $this->url->link('extension/module/quiz_nik/getResultForm', 'user_token=' . $this->session->data['user_token'] . '&language_id=' . $this->request->get['language_id'], true);
         } else {
-            $data['action'] = $this->url->link('extension/module/quiz_nik/getAddQuestionForm', 'user_token=' . $this->session->data['user_token'] . '&language_id=' . $question_info['language_id'] . '&question_id=' . $this->request->get['question_id'], true);
+            $data['action'] = $this->url->link('extension/module/quiz_nik/getResultForm', 'user_token=' . $this->session->data['user_token'] . '&language_id=' . $result_info['language_id'] . '&result_id=' . $this->request->get['result_id'], true);
         }
 
-        $data['cancel'] = $this->url->link('extension/module/quiz_nik', 'user_token=' . $this->session->data['user_token'] . '&type=module', true);
+        $data['cancel'] = $this->url->link('extension/module/quiz_nik', 'user_token=' . $this->session->data['user_token'], true);
 
-        if (isset($this->request->post['question_text_on_page'])) {
-            $data['question_text_on_page'] = $this->request->post['question_text_on_page'];
-        } elseif (!empty($question_info)) {
-            $data['question_text_on_page'] = $question_info['question_text_on_page'];
+        if (isset($this->request->post['result_if_points_less'])) {
+            $data['result_if_points_less'] = $this->request->post['result_if_points_less'];
+        } elseif (!empty($result_info)) {
+            $data['result_if_points_less'] = $result_info['result_if_points_less'];
         } else {
-            $data['question_text_on_page'] = '';
+            $data['result_if_points_less'] = '';
         }
 
-        if (isset($this->request->post['question_text'])) {
-            $data['question_text'] = $this->request->post['question_text'];
-        } elseif (!empty($question_info)) {
-            $data['question_text'] = $question_info['question_text'];
+        if (isset($this->request->post['result_text_result'])) {
+            $data['question_text'] = $this->request->post['result_text_result'];
+        } elseif (!empty($result_info)) {
+            $data['result_text_result'] = $result_info['result_text_result'];
         } else {
-            $data['question_text'] = '';
+            $data['result_text_result'] = '';
         }
 
-        if (isset($this->request->post['answers'])) {
-            $data['answers'] = $this->request->post['answers'];
-        } elseif (!empty($question_info)) {
-            $data['answers'] = $question_info['answers'];
+        if (isset($this->request->post['result_bonus_link_text'])) {
+            $data['result_bonus_link_text'] = $this->request->post['result_bonus_link_text'];
+        } elseif (!empty($result_info)) {
+            $data['result_bonus_link_text'] = $result_info['result_bonus_link_text'];
         } else {
-            $data['answers'] = array();
+            $data['result_bonus_link_text'] = '';
+        }
+
+        if (isset($this->request->post['result_bonus_link'])) {
+            $data['result_bonus_link'] = $this->request->post['result_bonus_link'];
+        } elseif (!empty($result_info)) {
+            $data['result_bonus_link'] = $result_info['result_bonus_link'];
+        } else {
+            $data['result_bonus_link'] = '';
         }
 
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
 
-        $this->response->setOutput($this->load->view('extension/module/quiz_add_question_nik', $data));
+        $this->response->setOutput($this->load->view('extension/module/quiz_result_form_nik', $data));
+    }
+
+    public function deleteResult() {
+        if (isset($this->request->get['result_id'])) {
+            $this->load->model('extension/module/quiz_nik');
+
+            $this->model_extension_module_quiz_nik->deleteResult($this->request->get['result_id']);
+
+            $this->response->redirect($this->url->link('extension/module/quiz_nik', 'user_token=' . $this->session->data['user_token'], true));
+        }
     }
 
     public function install() {

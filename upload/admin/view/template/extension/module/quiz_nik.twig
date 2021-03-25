@@ -121,17 +121,21 @@
 
                 <div class="block-row">
                   <h4>{{ text_result }}</h4>
-                  <div class="question-answer-row">
-                    <div class="question-answer-row-title">Результат №1 - Ты экономичный</div>
-                    <div class="question-answer-row-buttons">
-                      <a href="#" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-info"><i class="fa fa-pencil"></i></a>
-                      <a href="#" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger"><i class="fa fa-trash-o"></i></a>
+                  {% set result_counter = 1 %}
+                  {% for result in results if result.language_id == language.language_id %}
+                    <div class="question-answer-row">
+                      <div class="question-answer-row-title">Результат №{{ result_counter }} - {{ result.result_text_result }}</div>
+                      <div class="question-answer-row-buttons">
+                        <a href="{{ edit_result_button }}{{ result.result_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-info"><i class="fa fa-pencil"></i></a>
+                        <a href="{{ delete_result_button }}{{ result.result_id }}" onclick="confirm('{{ confirm_delete_result }}') ? window.href = '{{ delete_result_button }}{{ result.result_id }}' : event.preventDefault();" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger"><i class="fa fa-trash-o"></i></a>
+                      </div>
                     </div>
-                  </div>
+                    {% set result_counter = result_counter + 1 %}
+                  {% endfor %}
                   <div class="question-answer-row-add">
                     <div class="question-answer-row-add-button">
-                      {{ add_question_answer }}
-                      <a href="#" data-toggle="tooltip" title="{{ button_add }}" class="btn btn-success" style="margin-left: 10px;"><i class="fa fa-plus"></i></a>
+                      {{ add_result }}
+                      <a href="{{ add_result_button }}&language_id={{ language.language_id }}" data-toggle="tooltip" title="{{ button_add }}" class="btn btn-success" style="margin-left: 10px;"><i class="fa fa-plus"></i></a>
                     </div>
                   </div>
                 </div>

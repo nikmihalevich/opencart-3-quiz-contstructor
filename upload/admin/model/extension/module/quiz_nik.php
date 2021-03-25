@@ -12,24 +12,22 @@ class ModelExtensionModuleQuizNik extends Model {
 			) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci
 		");
 
-//        $this->db->query("
-//			CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "quiz_results` (
-//			  `paypal_order_id` int(11) NOT NULL AUTO_INCREMENT,
-//			  `order_id` int(11) NOT NULL,
-//			  `date_added` DATETIME NOT NULL,
-//			  `date_modified` DATETIME NOT NULL,
-//			  `capture_status` ENUM('Complete','NotComplete') DEFAULT NULL,
-//			  `currency_code` CHAR(3) NOT NULL,
-//			  `authorization_id` VARCHAR(30) NOT NULL,
-//			  `total` DECIMAL( 10, 2 ) NOT NULL,
-//			  PRIMARY KEY (`paypal_order_id`)
-//			) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci
-//		");
+        $this->db->query("
+			CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "quiz_results` (
+			  `result_id` int(11) NOT NULL AUTO_INCREMENT,
+			  `language_id` int(11) NOT NULL,
+			  `result_if_points_less` int(11) NOT NULL,
+			  `result_text_result` TEXT DEFAULT NULL,
+			  `result_bonus_link_text` TEXT DEFAULT NULL,
+			  `result_bonus_link` TEXT DEFAULT NULL,
+			  PRIMARY KEY (`result_id`)
+			) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci
+		");
     }
 
     public function uninstall() {
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "quiz_questions`");
-//        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "paypal_order`");
+        $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "quiz_results`");
     }
 
     public function addQuestion($data) {
@@ -69,7 +67,29 @@ class ModelExtensionModuleQuizNik extends Model {
         return $question_data;
     }
 
-    public function editPayPalOrderStatus($order_id, $capture_status) {
-        $this->db->query("UPDATE `" . DB_PREFIX . "paypal_order` SET `capture_status` = '" . $this->db->escape($capture_status) . "', `date_modified` = NOW() WHERE `order_id` = '" . (int)$order_id . "'");
+    public function addResult($data) {
+        if (!empty($data['result_if_points_less'])) {
+            $this->db->query("INSERT INTO `" . DB_PREFIX . "quiz_results` SET `language_id` = '" . (int)$data['language_id'] . "', `result_if_points_less` = '" . (int)$data['result_if_points_less'] . "', `result_text_result` = '" . $this->db->escape($data['result_text_result']) . "', `result_bonus_link_text` = '" . $this->db->escape($data['result_bonus_link_text']) . "', `result_bonus_link` = '" . $this->db->escape($data['result_bonus_link']) . "'");
+        }
+    }
+
+    public function editResult($result_id, $data) {
+        $this->db->query("UPDATE `" . DB_PREFIX . "quiz_results` SET `result_if_points_less` = '" . $this->db->escape($data['result_if_points_less']) . "', `result_text_result` = '" . $this->db->escape($data['result_text_result']) . "', `result_bonus_link_text` = '" . $this->db->escape($data['result_bonus_link_text']) . "', `result_bonus_link` = '" . $this->db->escape($data['result_bonus_link']) . "' WHERE `result_id` = '" . (int)$result_id . "'");
+    }
+
+    public function deleteResult($result_id) {
+        $this->db->query("DELETE FROM `" . DB_PREFIX . "quiz_results` WHERE `result_id` = '" . (int)$result_id . "'");
+    }
+
+    public function getResults() {
+        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "quiz_results` ORDER BY `result_id`");
+
+        return $query->rows;
+    }
+
+    public function getResult($result_id) {
+        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "quiz_results` WHERE `result_id` = '" . (int)$result_id . "'");
+
+        return $query->row;
     }
 }
