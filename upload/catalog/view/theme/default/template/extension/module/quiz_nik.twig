@@ -1,4 +1,30 @@
 {{ header }}
+<style>
+  .quiz-title {
+    font-size: 20px;
+  }
+  .quiz-next-prev-buttons {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .quiz-questions-content-answers-radio {
+    display: flex;
+  }
+
+  .quiz-questions-content-answers-radio>label {
+    display: inline-flex;
+  }
+
+  .quiz-questions-content-answers-radio>span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 5px;
+  }
+
+</style>
 <div id="product-product" class="container">
   <ul class="breadcrumb">
     {% for breadcrumb in breadcrumbs %}
@@ -14,17 +40,112 @@
       {% set class = 'col-sm-12' %}
     {% endif %}
     <div id="content" class="{{ class }}">{{ content_top }}
-      <div class="row"> {% if column_left or column_right %}
-          {% set class = 'col-sm-6' %}
-        {% else %}
-          {% set class = 'col-sm-8' %}
-        {% endif %}
+      <div class="row">
         <div class="{{ class }}">
+          {% if result %}
 
+            <div class="quiz-result-content">
+              <p class="quiz-result-content-points">
+                {{ text_user_points }}{{ points }}
+              </p>
+              <p class="quiz-result-content-text">
+                {{ result.result_text_result }}
+              </p>
+              <p>
+                {% if result.result_bonus_link %}
+                  <a href="{{ result.result_bonus_link }}" class="quiz-result-content-link">
+                    {% if result.result_bonus_link_text %}
+                      {{ result.result_bonus_link_text }}
+                    {% else %}
+                      {{ result.result_bonus_link }}
+                    {% endif %}
+                  </a>
+                {% endif %}
+              </p>
+              <p>
+                <a href="{{ result.back }}" class="btn btn-primary">{{ button_back_to_quiz }}</a>
+              </p>
+            </div>
+
+          {% else %}
+
+            <div class="{{ quiz_description.module_class }}">
+              <p class="quiz-title">{{ quiz_description.title }}</p>
+              <p class="quiz-text">{{ quiz_description.text }}</p>
+              {% if start_button %}
+                <a href="{{ start_button }}" class="btn btn-primary">{{ button_start }}</a>
+              {% endif %}
+
+              {% if question %}
+                <form action="" method="post" enctype="multipart/form-data" id="form-quiz">
+                  <div class="quiz-questions-content">
+                    <div class="quiz-questions-content-text">
+                      {{ question.question_text_on_page }}
+                    </div>
+                    <div class="quiz-questions-content-question">
+                      {{ question.question_text }}
+                    </div>
+                    <div class="quiz-questions-content-answers">
+                      {% for answer in question.answers %}
+                        <label class="quiz-questions-content-answers-radio">
+                          <input type="radio" name="answer" value="{{ answer.answer }}">
+                          <span>{{ answer.answer }}</span>
+                        </label>
+                      {% endfor %}
+                    </div>
+                  </div>
+                  <div class="quiz-next-prev-buttons">
+                    {% if back %}
+                      <button type="button" class="btn quiz-back-button btn-primary">{{ button_back }}</button>
+                    {% endif %}
+                    {% if prev %}
+                      <button type="button" class="btn quiz-prev-button btn-primary">{{ button_prev }}</button>
+                    {% endif %}
+                    {% if next %}
+                      <button type="button" class="btn btn-primary quiz-next-button" disabled="disabled">{{ button_next }}</button>
+                    {% endif %}
+                    {% if finish %}
+                      <button type="button" class="btn btn-primary quiz-finish-button" disabled="disabled">{{ button_finish }}</button>
+                    {% endif %}
+                    <input type="hidden" name="question_id" value="{{ question.question_id }}">
+                    <input type="hidden" name="language_id" value="{{ question.language_id }}">
+                  </div>
+                </form>
+              {% endif %}
+            </div>
+
+          {% endif %}
         </div>
       </div>
     </div>
-  </div>
+  </div>s
+  <script>
+      $("input[type=radio]").on("change", function() {
+          $(".quiz-next-button").prop("disabled", false);
+          $(".quiz-finish-button").prop("disabled", false);
+      });
+
+      $('.quiz-back-button').on('click', function () {
+          $(this).closest("form").attr('action', '{{ back }}');
+          $(this).closest("form").submit();
+      })
+
+      $('.quiz-prev-button').on('click', function () {
+          $(this).closest("form").attr('action', '{{ prev }}');
+          $(this).closest("form").submit();
+      })
+
+      $('.quiz-next-button').on('click', function () {
+          $(this).closest("form").attr('action', '{{ next }}');
+          $(this).closest("form").submit();
+      })
+
+      $('.quiz-finish-button').on('click', function () {
+          $(this).closest("form").attr('action', '{{ finish }}');
+          $(this).closest("form").submit();
+      })
+
+  </script>
 </div>
 
 {{ footer }}

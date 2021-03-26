@@ -68,6 +68,13 @@ class ControllerExtensionModuleQuizNik extends Controller {
 			$data['module_quiz_nik_status'] = $this->config->get('module_quiz_nik_status');
 		}
 
+		$module_link = $this->url->link('extension/module/quiz_nik');
+
+		$module_link_arr = explode('/', $module_link);
+        unset($module_link_arr[array_search('admin',$module_link_arr)]);
+
+		$data['module_link'] = implode('/', $module_link_arr);
+
         $this->load->model('extension/module/quiz_nik');
 
 		$data['questions'] = $this->model_extension_module_quiz_nik->getQuestions();
@@ -145,8 +152,19 @@ class ControllerExtensionModuleQuizNik extends Controller {
 
         if (!isset($this->request->get['question_id'])) {
             $data['action'] = $this->url->link('extension/module/quiz_nik/getQuestionForm', 'user_token=' . $this->session->data['user_token'] . '&language_id=' . $this->request->get['language_id'], true);
+            $totalQuestions = $this->model_extension_module_quiz_nik->getTotalQuestionsByLanguage($this->request->get['language_id']);
+            $data['question_number'] = (int)$totalQuestions['total'] + 1;
         } else {
             $data['action'] = $this->url->link('extension/module/quiz_nik/getQuestionForm', 'user_token=' . $this->session->data['user_token'] . '&language_id=' . $question_info['language_id'] . '&question_id=' . $this->request->get['question_id'], true);
+            $questions = $this->model_extension_module_quiz_nik->getQuestionsByLanguage($question_info['language_id']);
+            $questionCounter = 1;
+            foreach ($questions as $question) {
+                if ($question['question_id'] == $this->request->get['question_id']) {
+                    break;
+                }
+                $questionCounter++;
+            }
+            $data['question_number'] = $questionCounter;
         }
 
         $data['cancel'] = $this->url->link('extension/module/quiz_nik', 'user_token=' . $this->session->data['user_token'], true);

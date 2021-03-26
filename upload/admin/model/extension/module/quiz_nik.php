@@ -57,6 +57,19 @@ class ModelExtensionModuleQuizNik extends Model {
         return $questions_data;
     }
 
+    public function getQuestionsByLanguage($language_id) {
+        $questions_data = array();
+
+        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "quiz_questions` WHERE `language_id` = '" . (int)$language_id . "' ORDER BY `question_id`");
+
+        foreach ($query->rows as $key => $result) {
+            $result['answers'] = json_decode($result['answers']);
+            $questions_data[$key] = $result;
+        }
+
+        return $questions_data;
+    }
+
     public function getQuestion($question_id) {
         $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "quiz_questions` WHERE `question_id` = '" . (int)$question_id . "'");
 
@@ -65,6 +78,18 @@ class ModelExtensionModuleQuizNik extends Model {
         $question_data['answers'] = json_decode($question_data['answers']);
 
         return $question_data;
+    }
+
+    public function getTotalQuestions() {
+        $query = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "quiz_questions");
+
+        return $query->row;
+    }
+
+    public function getTotalQuestionsByLanguage($language_id) {
+        $query = $this->db->query("SELECT COUNT(*) AS total FROM " . DB_PREFIX . "quiz_questions WHERE `language_id` = '" . (int)$language_id . "'");
+
+        return $query->row;
     }
 
     public function addResult($data) {

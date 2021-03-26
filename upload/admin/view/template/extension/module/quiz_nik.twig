@@ -87,13 +87,13 @@
                 <div class="form-group">
                   <label class="col-sm-2 control-label" for="input-link{{ language.language_id }}">{{ entry_quiz_page_link }}</label>
                   <div class="col-sm-10">
-                    <input type="text" name="module_quiz_nik_description[{{ language.language_id }}][link]" value="{{ module_quiz_nik_description[language.language_id] ? module_quiz_nik_description[language.language_id].link }}" placeholder="{{ entry_quiz_page_link }}" id="input-link{{ language.language_id }}" class="form-control"/>
+                    <input type="text" disabled name="module_quiz_nik_description[{{ language.language_id }}][link]" value="{{ module_link }}" placeholder="{{ entry_quiz_page_link }}" id="input-link{{ language.language_id }}" class="form-control"/>
                   </div>
                 </div>
                 <div class="form-group">
                   <label class="col-sm-2 control-label" for="input-class{{ language.language_id }}">{{ entry_module_class }}</label>
                   <div class="col-sm-10">
-                    <input type="text" name="module_quiz_nik_description[{{ language.language_id }}][class]" value="{{ module_quiz_nik_description[language.language_id] ? module_quiz_nik_description[language.language_id].class }}" placeholder="{{ entry_module_class }}" id="input-class{{ language.language_id }}" class="form-control"/>
+                    <input type="text" name="module_quiz_nik_description[{{ language.language_id }}][module_class]" value="{{ module_quiz_nik_description[language.language_id] ? module_quiz_nik_description[language.language_id].module_class }}" placeholder="{{ entry_module_class }}" id="input-class{{ language.language_id }}" class="form-control"/>
                   </div>
                 </div>
 
