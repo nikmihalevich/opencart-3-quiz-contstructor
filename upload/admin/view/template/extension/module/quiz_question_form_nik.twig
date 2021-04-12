@@ -103,7 +103,7 @@
     $('.add-answer').on('click', function () {
         let html = '';
 
-        ++answerCounter;
+        answerCounter = answerCounter + 1;
 
         html += '<div class="answer-row">\n' +
                   '<label class="col-sm-2 control-label" for="input-question-answers' + answerCounter + '">{{ entry_answer_text }}' + answerCounter + '</label>\n' +
